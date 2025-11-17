@@ -200,6 +200,15 @@
             <div class="date-display">Fecha: <span id="fecha"></span></div>
         </div>
 
+        <!-- APERTURA DE CAJA -->
+        <div class="section">
+            <div class="section-title" style="background: linear-gradient(135deg, #16a085, #1abc9c);">APERTURA DE CAJA / FONDO INICIAL</div>
+            <div class="datafono-section">
+                <label for="fondo-inicial">Fondo Inicial (efectivo que abres con)</label>
+                <input type="number" id="fondo-inicial" min="0" step="0.01" value="400" placeholder="0.00">
+            </div>
+        </div>
+
         <!-- MONEDAS -->
         <div class="section">
             <div class="section-title">MONEDAS</div>
@@ -321,8 +330,48 @@
         <div class="section">
             <div class="venta-dia">VENTA DÍA</div>
             <div class="datafono-section">
-                <label for="total-venta">TOTAL</label>
+                <label for="total-venta">Total Ventas del Día (según TPV/Sistema)</label>
                 <input type="number" id="total-venta" min="0" step="0.01" value="0" placeholder="0.00">
+            </div>
+            
+            <!-- CÁLCULO AUTOMÁTICO -->
+            <div style="background: #ecf0f1; padding: 20px; border-radius: 8px; margin-top: 15px;">
+                <h3 style="color: #2c3e50; margin-bottom: 15px; text-align: center;">📊 RESUMEN DE CIERRE</h3>
+                
+                <div style="display: grid; gap: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 5px;">
+                        <span><strong>Efectivo contado:</strong></span>
+                        <span id="efectivo-contado">0.00 €</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 5px;">
+                        <span><strong>- Fondo inicial:</strong></span>
+                        <span id="fondo-mostrar">0.00 €</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #3498db; color: white; border-radius: 5px; font-weight: bold;">
+                        <span>= Venta en efectivo:</span>
+                        <span id="venta-efectivo-calc">0.00 €</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 5px;">
+                        <span><strong>+ Datáfono:</strong></span>
+                        <span id="datafono-mostrar">0.00 €</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: #16a085; color: white; border-radius: 5px; font-weight: bold; font-size: 18px;">
+                        <span>= Total ventas REAL:</span>
+                        <span id="total-real">0.00 €</span>
+                    </div>
+                    
+                    <div style="display: flex; justify-content: space-between; padding: 8px; background: white; border-radius: 5px;">
+                        <span><strong>Total ventas ESPERADO:</strong></span>
+                        <span id="total-esperado">0.00 €</span>
+                    </div>
+                </div>
+                
+                <!-- DIFERENCIA -->
+                <div id="diferencia-info" style="padding: 15px; border-radius: 8px; font-weight: bold; text-align: center; font-size: 20px; margin-top: 10px;"></div>
             </div>
         </div>
     </div>
@@ -392,41 +441,54 @@
         }
 
         // Calcular diferencia de venta del día
+        const fondoInicialInput = document.getElementById('fondo-inicial');
         const importeDatafonoInput = document.getElementById('importe-datafono');
         const totalVentaInput = document.getElementById('total-venta');
 
         function calcularDiferencia() {
-            const recogida = parseFloat(document.getElementById('recogida').textContent) || 0;
+            const efectivoContado = parseFloat(document.getElementById('recogida').textContent) || 0;
+            const fondoInicial = parseFloat(fondoInicialInput.value) || 0;
             const datafono = parseFloat(importeDatafonoInput.value) || 0;
-            const totalEfectivoDatafono = recogida + datafono;
-            const ventaDia = parseFloat(totalVentaInput.value) || 0;
-            const diferencia = totalEfectivoDatafono - ventaDia;
+            const ventaEsperada = parseFloat(totalVentaInput.value) || 0;
+            
+            // Cálculo: Efectivo contado - Fondo inicial = Venta en efectivo
+            const ventaEfectivo = efectivoContado - fondoInicial;
+            
+            // Total real: Venta efectivo + Datáfono
+            const totalReal = ventaEfectivo + datafono;
+            
+            // Diferencia
+            const diferencia = totalReal - ventaEsperada;
 
-            // Mostrar información adicional si hay diferencia
-            let diferenciaElement = document.getElementById('diferencia-info');
-            if (!diferenciaElement) {
-                diferenciaElement = document.createElement('div');
-                diferenciaElement.id = 'diferencia-info';
-                diferenciaElement.style.cssText = 'padding: 15px; margin: 10px 0; border-radius: 8px; font-weight: 600; text-align: center;';
-                totalVentaInput.parentElement.appendChild(diferenciaElement);
-            }
+            // Actualizar valores en la interfaz
+            document.getElementById('efectivo-contado').textContent = formatEuros(efectivoContado);
+            document.getElementById('fondo-mostrar').textContent = formatEuros(fondoInicial);
+            document.getElementById('venta-efectivo-calc').textContent = formatEuros(ventaEfectivo);
+            document.getElementById('datafono-mostrar').textContent = formatEuros(datafono);
+            document.getElementById('total-real').textContent = formatEuros(totalReal);
+            document.getElementById('total-esperado').textContent = formatEuros(ventaEsperada);
 
-            if (ventaDia > 0) {
+            // Mostrar diferencia
+            const diferenciaElement = document.getElementById('diferencia-info');
+
+            if (ventaEsperada > 0) {
                 if (Math.abs(diferencia) < 0.01) {
-                    diferenciaElement.style.background = '#27ae60';
+                    diferenciaElement.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
                     diferenciaElement.style.color = 'white';
-                    diferenciaElement.textContent = '✓ Caja cuadrada: ' + formatEuros(diferencia);
+                    diferenciaElement.innerHTML = '✓ CAJA CUADRADA<br>' + formatEuros(0);
                 } else if (diferencia > 0) {
-                    diferenciaElement.style.background = '#3498db';
+                    diferenciaElement.style.background = 'linear-gradient(135deg, #3498db, #2980b9)';
                     diferenciaElement.style.color = 'white';
-                    diferenciaElement.textContent = '↑ Sobrante: ' + formatEuros(diferencia);
+                    diferenciaElement.innerHTML = '↑ SOBRANTE<br>' + formatEuros(diferencia);
                 } else {
-                    diferenciaElement.style.background = '#e74c3c';
+                    diferenciaElement.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
                     diferenciaElement.style.color = 'white';
-                    diferenciaElement.textContent = '↓ Faltante: ' + formatEuros(Math.abs(diferencia));
+                    diferenciaElement.innerHTML = '↓ FALTANTE<br>' + formatEuros(Math.abs(diferencia));
                 }
             } else {
-                diferenciaElement.textContent = '';
+                diferenciaElement.style.background = '#95a5a6';
+                diferenciaElement.style.color = 'white';
+                diferenciaElement.innerHTML = 'Ingresa el total de ventas esperado';
             }
         }
 
@@ -439,6 +501,7 @@
             input.addEventListener('input', calcularBilletes);
         });
 
+        fondoInicialInput.addEventListener('input', calcularDiferencia);
         importeDatafonoInput.addEventListener('input', calcularDiferencia);
         totalVentaInput.addEventListener('input', calcularDiferencia);
 
