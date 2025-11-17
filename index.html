@@ -388,6 +388,46 @@
             const totalRecogida = totalMonedas + totalBilletes;
             
             document.getElementById('recogida').textContent = formatEuros(totalRecogida);
+            calcularDiferencia();
+        }
+
+        // Calcular diferencia de venta del día
+        const importeDatafonoInput = document.getElementById('importe-datafono');
+        const totalVentaInput = document.getElementById('total-venta');
+
+        function calcularDiferencia() {
+            const recogida = parseFloat(document.getElementById('recogida').textContent) || 0;
+            const datafono = parseFloat(importeDatafonoInput.value) || 0;
+            const totalEfectivoDatafono = recogida + datafono;
+            const ventaDia = parseFloat(totalVentaInput.value) || 0;
+            const diferencia = totalEfectivoDatafono - ventaDia;
+
+            // Mostrar información adicional si hay diferencia
+            let diferenciaElement = document.getElementById('diferencia-info');
+            if (!diferenciaElement) {
+                diferenciaElement = document.createElement('div');
+                diferenciaElement.id = 'diferencia-info';
+                diferenciaElement.style.cssText = 'padding: 15px; margin: 10px 0; border-radius: 8px; font-weight: 600; text-align: center;';
+                totalVentaInput.parentElement.appendChild(diferenciaElement);
+            }
+
+            if (ventaDia > 0) {
+                if (Math.abs(diferencia) < 0.01) {
+                    diferenciaElement.style.background = '#27ae60';
+                    diferenciaElement.style.color = 'white';
+                    diferenciaElement.textContent = '✓ Caja cuadrada: ' + formatEuros(diferencia);
+                } else if (diferencia > 0) {
+                    diferenciaElement.style.background = '#3498db';
+                    diferenciaElement.style.color = 'white';
+                    diferenciaElement.textContent = '↑ Sobrante: ' + formatEuros(diferencia);
+                } else {
+                    diferenciaElement.style.background = '#e74c3c';
+                    diferenciaElement.style.color = 'white';
+                    diferenciaElement.textContent = '↓ Faltante: ' + formatEuros(Math.abs(diferencia));
+                }
+            } else {
+                diferenciaElement.textContent = '';
+            }
         }
 
         // Event listeners
@@ -399,9 +439,13 @@
             input.addEventListener('input', calcularBilletes);
         });
 
+        importeDatafonoInput.addEventListener('input', calcularDiferencia);
+        totalVentaInput.addEventListener('input', calcularDiferencia);
+
         // Inicializar cálculos
         calcularMonedas();
         calcularBilletes();
+        calcularDiferencia();
     </script>
 </body>
 </html>
