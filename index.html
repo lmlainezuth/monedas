@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cierre de Caja</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: white;
+            padding: 25px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .date-display {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .section-title {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            letter-spacing: 1px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #ecf0f1;
+            padding: 12px;
+            text-align: center;
+            font-weight: 600;
+            border: 1px solid #bdc3c7;
+        }
+
+        td {
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            text-align: center;
+        }
+
+        .denomination {
+            font-weight: 600;
+            background: #f8f9fa;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #2ecc71;
+            box-shadow: 0 0 8px rgba(46, 204, 113, 0.3);
+        }
+
+        .total-row {
+            background: #3498db;
+            color: white;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .summary {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .recogida {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        .datafono-section {
+            background: #ecf0f1;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+
+        .datafono-section label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .venta-dia {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            padding: 12px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            margin-top: 20px;
+        }
+
+        .bill-marker {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            background: #27ae60;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .section-title {
+                font-size: 16px;
+            }
+
+            input[type="number"] {
+                font-size: 14px;
+                padding: 6px;
+            }
+
+            th, td {
+                padding: 8px 4px;
+                font-size: 14px;
+            }
+
+            .total-row {
+                font-size: 16px;
+            }
+
+            .recogida {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CIERRE DE CAJA</h1>
+            <div class="date-display">Fecha: <span id="fecha"></span></div>
+        </div>
+
+        <!-- MONEDAS -->
+        <div class="section">
+            <div class="section-title">MONEDAS</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Denominación</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="monedas-body">
+                        <tr>
+                            <td class="denomination">2.00 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="2.00" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">1.00 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="1.00" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.50 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.50" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.20 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.20" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.10 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.10" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.05 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.05" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.02 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.02" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">0.01 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="0.01" class="moneda-input"></td>
+                            <td class="moneda-total">0.00 €</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="2">TOTAL MONEDAS</td>
+                            <td id="total-monedas">0.00 €</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- SOBRANTE Y COMPLETAR FONDO -->
+        <div class="section">
+            <div class="section-title">AJUSTE DE MONEDAS</div>
+            <div class="table-container">
+                <table>
+                    <tbody>
+                        <tr>
+                            <td class="denomination">Total Monedas Real</td>
+                            <td id="monedas-real">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination">Total Redondeado (decenas)</td>
+                            <td id="monedas-redondeado">0.00 €</td>
+                        </tr>
+                        <tr style="background: #e74c3c; color: white; font-weight: bold;">
+                            <td>SOBRANTE</td>
+                            <td id="sobrante">0.00 €</td>
+                        </tr>
+                        <tr style="background: #9b59b6; color: white; font-weight: bold;">
+                            <td>COMPLETAR FONDO (400€ - Redondeado)</td>
+                            <td id="completar-fondo">400.00 €</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BILLETES -->
+        <div class="section">
+            <div class="section-title">BILLETES</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Denominación</th>
+                            <th>Cantidad</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody id="billetes-body">
+                        <tr>
+                            <td class="denomination"><span class="bill-marker"></span>50 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="50" class="billete-input"></td>
+                            <td class="billete-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination"><span class="bill-marker"></span>20 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="20" class="billete-input"></td>
+                            <td class="billete-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination"><span class="bill-marker"></span>10 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="10" class="billete-input"></td>
+                            <td class="billete-total">0.00 €</td>
+                        </tr>
+                        <tr>
+                            <td class="denomination"><span class="bill-marker"></span>5 €</td>
+                            <td><input type="number" min="0" placeholder="0" data-value="5" class="billete-input"></td>
+                            <td class="billete-total">0.00 €</td>
+                        </tr>
+                        <tr class="total-row">
+                            <td colspan="2">TOTAL BILLETES</td>
+                            <td id="total-billetes">0.00 €</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- RECOGIDA -->
+        <div class="summary">RECOGIDA</div>
+        <div class="recogida" id="recogida">0.00 €</div>
+
+        <!-- DATÁFONO -->
+        <div class="section">
+            <div class="section-title">CIERRE DATÁFONO</div>
+            <div class="datafono-section">
+                <label for="importe-datafono">Importe Datáfono</label>
+                <input type="number" id="importe-datafono" min="0" step="0.01" placeholder="0.00">
+            </div>
+        </div>
+
+        <!-- VENTA DÍA -->
+        <div class="section">
+            <div class="venta-dia">VENTA DÍA</div>
+            <div class="datafono-section">
+                <label for="total-venta">TOTAL (Recogida + Datáfono)</label>
+                <input type="number" id="total-venta" min="0" step="0.01" value="0" placeholder="0.00" readonly style="background-color: #d5f4e6; font-weight: bold; font-size: 18px;">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar fecha actual
+        const fechaElement = document.getElementById('fecha');
+        const hoy = new Date();
+        const opciones = { year: 'numeric', month: 'long', day: 'numeric' };
+        fechaElement.textContent = hoy.toLocaleDateString('es-ES', opciones);
+
+        // Función para formatear números a euros
+        function formatEuros(numero) {
+            return numero.toFixed(2) + ' €';
+        }
+
+        // Calcular monedas
+        const monedasInputs = document.querySelectorAll('.moneda-input');
+        const monedasTotales = document.querySelectorAll('.moneda-total');
+        const totalMonedasElement = document.getElementById('total-monedas');
+
+        function calcularMonedas() {
+            let totalMonedas = 0;
+            
+            monedasInputs.forEach((input, index) => {
+                const cantidad = parseFloat(input.value) || 0;
+                const valor = parseFloat(input.dataset.value);
+                const total = cantidad * valor;
+                
+                monedasTotales[index].textContent = formatEuros(total);
+                totalMonedas += total;
+            });
+            
+            // Total real de monedas
+            totalMonedasElement.textContent = formatEuros(totalMonedas);
+            document.getElementById('monedas-real').textContent = formatEuros(totalMonedas);
+            
+            // Redondear a decenas (hacia abajo)
+            const totalRedondeado = Math.floor(totalMonedas / 10) * 10;
+            document.getElementById('monedas-redondeado').textContent = formatEuros(totalRedondeado);
+            
+            // Calcular sobrante
+            const sobrante = totalMonedas - totalRedondeado;
+            document.getElementById('sobrante').textContent = formatEuros(sobrante);
+            
+            // Calcular completar fondo (400 - redondeado)
+            const completarFondo = 400 - totalRedondeado;
+            document.getElementById('completar-fondo').textContent = formatEuros(completarFondo);
+            
+            calcularRecogida();
+        }
+
+        // Calcular billetes
+        const billetesInputs = document.querySelectorAll('.billete-input');
+        const billetesTotales = document.querySelectorAll('.billete-total');
+        const totalBilletesElement = document.getElementById('total-billetes');
+
+        function calcularBilletes() {
+            let totalBilletes = 0;
+            
+            billetesInputs.forEach((input, index) => {
+                const cantidad = parseFloat(input.value) || 0;
+                const valor = parseFloat(input.dataset.value);
+                const total = cantidad * valor;
+                
+                billetesTotales[index].textContent = formatEuros(total);
+                totalBilletes += total;
+            });
+            
+            totalBilletesElement.textContent = formatEuros(totalBilletes);
+            calcularRecogida();
+        }
+
+        // Calcular recogida total (billetes + sobrante)
+        function calcularRecogida() {
+            const totalBilletes = parseFloat(totalBilletesElement.textContent) || 0;
+            const sobrante = parseFloat(document.getElementById('sobrante').textContent) || 0;
+            const totalRecogida = totalBilletes + sobrante;
+            
+            document.getElementById('recogida').textContent = formatEuros(totalRecogida);
+            calcularVentaDia();
+        }
+
+        // Calcular venta del día (recogida + datáfono)
+        function calcularVentaDia() {
+            const recogida = parseFloat(document.getElementById('recogida').textContent) || 0;
+            const datafono = parseFloat(document.getElementById('importe-datafono').value) || 0;
+            const ventaDia = recogida + datafono;
+            
+            document.getElementById('total-venta').value = ventaDia.toFixed(2);
+        }
+
+        // Event listeners
+        monedasInputs.forEach(input => {
+            input.addEventListener('input', calcularMonedas);
+        });
+
+        billetesInputs.forEach(input => {
+            input.addEventListener('input', calcularBilletes);
+        });
+
+        // Event listener para el datáfono
+        document.getElementById('importe-datafono').addEventListener('input', calcularVentaDia);
+
+        // Inicializar cálculos
+        calcularMonedas();
+        calcularBilletes();
+    </script>
+</body>
+</html>
