@@ -344,12 +344,27 @@
             </div>
         </div>
 
+        <!-- PAGO DE FACTURAS -->
+        <div class="section">
+            <div class="section-title">PAGO DE FACTURAS</div>
+            <div class="datafono-section">
+                <label for="importe-factura">Importe Factura Pagada</label>
+                <input type="number" id="importe-factura" min="0" step="0.01" placeholder="0.00">
+            </div>
+        </div>
+
         <!-- VENTA DÍA -->
         <div class="section">
             <div class="venta-dia">VENTA DÍA</div>
             <div class="datafono-section">
-                <label for="total-venta">TOTAL (Recogida + Datáfono)</label>
-                <input type="number" id="total-venta" min="0" step="0.01" value="0" placeholder="0.00" readonly style="background-color: #d5f4e6; font-weight: bold; font-size: 18px;">
+                <label for="cierre-aplicacion">CIERRE APLICACIÓN (Recogida + Datáfono - Factura)</label>
+                <input type="number" id="cierre-aplicacion" min="0" step="0.01" value="0" placeholder="0.00" readonly style="background-color: #d5f4e6; font-weight: bold; font-size: 18px;">
+                
+                <label for="cierre-ventas" style="margin-top: 15px;">CIERRE VENTAS (Recogida + Datáfono)</label>
+                <input type="number" id="cierre-ventas" min="0" step="0.01" value="0" placeholder="0.00" readonly style="background-color: #ffe8cc; font-weight: bold; font-size: 18px;">
+                
+                <label for="diferencia-factura" style="margin-top: 15px;">DIFERENCIA (Factura)</label>
+                <input type="number" id="diferencia-factura" min="0" step="0.01" value="0" placeholder="0.00" readonly style="background-color: #ffcccc; font-weight: bold; font-size: 18px;">
             </div>
         </div>
     </div>
@@ -433,13 +448,22 @@
             calcularVentaDia();
         }
 
-        // Calcular venta del día (recogida + datáfono)
+        // Calcular venta del día (recogida + datáfono - factura)
         function calcularVentaDia() {
             const recogida = parseFloat(document.getElementById('recogida').textContent) || 0;
             const datafono = parseFloat(document.getElementById('importe-datafono').value) || 0;
-            const ventaDia = recogida + datafono;
+            const factura = parseFloat(document.getElementById('importe-factura').value) || 0;
             
-            document.getElementById('total-venta').value = ventaDia.toFixed(2);
+            // Cierre en aplicación (lo que realmente tienes)
+            const cierreAplicacion = recogida + datafono - factura;
+            document.getElementById('cierre-aplicacion').value = cierreAplicacion.toFixed(2);
+            
+            // Cierre de ventas (lo que aparece en el sistema)
+            const cierreVentas = recogida + datafono;
+            document.getElementById('cierre-ventas').value = cierreVentas.toFixed(2);
+            
+            // Diferencia (la factura pagada)
+            document.getElementById('diferencia-factura').value = factura.toFixed(2);
         }
 
         // Event listeners
@@ -453,6 +477,9 @@
 
         // Event listener para el datáfono
         document.getElementById('importe-datafono').addEventListener('input', calcularVentaDia);
+
+        // Event listener para facturas
+        document.getElementById('importe-factura').addEventListener('input', calcularVentaDia);
 
         // Inicializar cálculos
         calcularMonedas();
